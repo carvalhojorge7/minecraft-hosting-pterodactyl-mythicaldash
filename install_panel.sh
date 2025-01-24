@@ -106,8 +106,8 @@ chmod -R 775 /var/www/pterodactyl/bootstrap/cache
 print_info "Configurando ambiente..."
 cp .env.example .env
 
-# Executar composer install para garantir que todas as dependências sejam instaladas
-su -c "composer install --no-dev --optimize-autoloader" $USER
+# Executar Composer como usuário normal sem solicitar ao usuário
+composer install --no-dev --optimize-autoloader
 
 # Garantir que o Composer seja executado com as permissões corretas
 chown -R www-data:www-data /var/www/pterodactyl/vendor
@@ -122,7 +122,7 @@ sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
 sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
 
 # Executar composer install novamente antes de configurar o banco de dados
-su -c "composer install --no-dev --optimize-autoloader" $USER
+composer install --no-dev --optimize-autoloader
 
 # Configurar banco de dados
 php artisan migrate --seed --force
