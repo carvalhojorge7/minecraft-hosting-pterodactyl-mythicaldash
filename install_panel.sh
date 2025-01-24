@@ -4,7 +4,9 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m'
+BOLD='\033[1m'
+UNDERLINE='\033[4m'
+NC='\033[0m' # Sem cor
 
 # Função para imprimir mensagens
 print_info() {
@@ -17,6 +19,10 @@ print_warning() {
 
 print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
+}
+
+print_password() {
+    echo -e "${YELLOW}${BOLD}[SENHA IMPORTANTE]${NC}${BOLD} $1${NC}"
 }
 
 # Verificar sistema operacional
@@ -42,12 +48,15 @@ apt update
 apt install -y php8.2 php8.2-cli php8.2-common php8.2-gd php8.2-mysql php8.2-mbstring \
     php8.2-bcmath php8.2-xml php8.2-fpm php8.2-curl php8.2-zip
 
-# Instalar Composer
-print_info "Instalando Composer..."
-curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Garantir que o Composer seja executado com as permissões corretas
-chown -R www-data:www-data /usr/local/bin/composer
+# Remover e reinstalar o MySQL se ele já estiver instalado
+if dpkg -l | grep -q mysql-server; then
+    print_warning "MySQL já instalado. Removendo para reinstalação..."
+    systemctl stop mysql
+    apt purge -y mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-*
+    rm -rf /etc/mysql /var/lib/mysql
+    apt autoremove -y
+    apt autoclean
+fi
 
 # Instalar MySQL
 print_info "Instalando MySQL..."
@@ -55,7 +64,7 @@ apt install -y mysql-server
 
 # Gerar senha aleatória para root do MySQL
 MYSQL_ROOT_PASSWORD=$(openssl rand -base64 32)
-print_warning "Senha root do MySQL gerada: $MYSQL_ROOT_PASSWORD"
+print_password "Senha root do MySQL gerada: $MYSQL_ROOT_PASSWORD"
 echo "Por favor, guarde esta senha em um local seguro!"
 
 # Configurar MySQL
@@ -66,7 +75,7 @@ mysql -e "FLUSH PRIVILEGES;"
 DB_NAME="pterodactyl"
 DB_USER="pterodactyl"
 DB_PASSWORD=$(openssl rand -base64 32)
-print_warning "Senha do banco de dados do Pterodactyl: $DB_PASSWORD"
+print_password "Senha do banco de dados do Pterodactyl: $DB_PASSWORD"
 
 mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
 mysql -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
@@ -114,15 +123,6 @@ cp .env.example .env
 sed -i "s|DB_PASSWORD=|DB_PASSWORD=$DB_PASSWORD|g" .env
 sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
 sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
-
-# Validar credenciais do banco de dados
-print_info "Validando conexão com o banco de dados..."
-DB_CHECK=$(mysql -u$DB_USER -p$DB_PASSWORD -e "SHOW DATABASES;" 2>&1)
-if [[ $DB_CHECK == *"Access denied"* ]]; then
-    print_error "Falha na conexão ao banco de dados com o usuário $DB_USER. Redefinindo senha do MySQL..."
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "ALTER USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
-fi
 
 # Executar Composer como usuário não-root
 print_info "Instalando dependências do Composer..."
@@ -226,7 +226,5 @@ systemctl enable --now pteroq.service
 # Finalização
 print_info "Instalação concluída!"
 print_info "Painel acessível em: http://$(curl -s ifconfig.me)"
-print_warning "Por favor, configure um certificado SSL antes de usar em produção!"
-print_warning "Guarde as senhas geradas:"
-echo "MySQL Root Password: $MYSQL_ROOT_PASSWORD"
-echo "Database Password: $DB_PASSWORD"
+print_password "MySQL Root Password: $MYSQL_ROOT_PASSWORD"
+print_password "Database Password: $DB_PASSWORD"
