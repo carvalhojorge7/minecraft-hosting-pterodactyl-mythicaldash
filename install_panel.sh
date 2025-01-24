@@ -19,10 +19,10 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Verificar se está rodando como root
-if [ "$(id -u)" != "0" ]; then
-    print_error "Este script precisa ser executado como root!"
-    exit 1
+# Verificar se o script está sendo executado como root
+if [ "$EUID" -eq 0 ]; then
+  echo "Por favor, não execute este script como root. Execute como um usuário normal."
+  exit 1
 fi
 
 # Verificar sistema operacional
@@ -111,6 +111,8 @@ chmod -R 775 /var/www/pterodactyl/bootstrap/cache
 # Configurar ambiente
 print_info "Configurando ambiente..."
 cp .env.example .env
+
+# Executar composer install para garantir que todas as dependências sejam instaladas
 composer install --no-dev --optimize-autoloader
 
 # Garantir que o Composer seja executado com as permissões corretas
@@ -124,6 +126,9 @@ sed -i "s|APP_URL=http://localhost|APP_URL=http://$(curl -s ifconfig.me)|g" .env
 sed -i "s|DB_PASSWORD=|DB_PASSWORD=$DB_PASSWORD|g" .env
 sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
 sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
+
+# Executar composer install novamente antes de configurar o banco de dados
+composer install --no-dev --optimize-autoloader
 
 # Configurar banco de dados
 php artisan migrate --seed --force
