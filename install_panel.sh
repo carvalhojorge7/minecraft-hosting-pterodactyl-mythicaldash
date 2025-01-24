@@ -19,12 +19,6 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Verificar se o script está sendo executado como root
-if [ "$EUID" -eq 0 ]; then
-  echo "Por favor, não execute este script como root. Execute como um usuário normal."
-  exit 1
-fi
-
 # Verificar sistema operacional
 if ! [[ -f /etc/lsb-release && $(cat /etc/lsb-release) == *"Ubuntu"* ]]; then
     print_error "Este script foi feito para Ubuntu 20.04/22.04!"
@@ -113,7 +107,7 @@ print_info "Configurando ambiente..."
 cp .env.example .env
 
 # Executar composer install para garantir que todas as dependências sejam instaladas
-composer install --no-dev --optimize-autoloader
+su -c "composer install --no-dev --optimize-autoloader" $USER
 
 # Garantir que o Composer seja executado com as permissões corretas
 chown -R www-data:www-data /var/www/pterodactyl/vendor
@@ -128,7 +122,7 @@ sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
 sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
 
 # Executar composer install novamente antes de configurar o banco de dados
-composer install --no-dev --optimize-autoloader
+su -c "composer install --no-dev --optimize-autoloader" $USER
 
 # Configurar banco de dados
 php artisan migrate --seed --force
