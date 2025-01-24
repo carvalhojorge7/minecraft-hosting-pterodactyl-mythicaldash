@@ -96,18 +96,23 @@ curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/downl
 tar -xzvf panel.tar.gz
 chmod -R 755 storage/* bootstrap/cache/
 
-# Corrigir permissões para os diretórios de armazenamento
-chown -R www-data:www-data /var/www/pterodactyl/storage
-chown -R www-data:www-data /var/www/pterodactyl/bootstrap/cache
-chmod -R 775 /var/www/pterodactyl/storage
-chmod -R 775 /var/www/pterodactyl/bootstrap/cache
+# Corrigir permissões para os diretórios de armazenamento e vendor
+chown -R www-data:www-data /var/www/pterodactyl
+chmod -R 755 /var/www/pterodactyl
+
+# Criar diretório vendor se não existir
+if [ ! -d "/var/www/pterodactyl/vendor" ]; then
+    mkdir -p /var/www/pterodactyl/vendor
+    chown -R www-data:www-data /var/www/pterodactyl/vendor
+fi
 
 # Configurar ambiente
 print_info "Configurando ambiente..."
 cp .env.example .env
 
-# Executar Composer como usuário www-data
-sudo -u www-data composer install --no-dev --optimize-autoloader
+# Executar Composer como usuário não-root
+print_info "Instalando dependências do Composer..."
+su -s /bin/bash www-data -c "composer install --no-dev --optimize-autoloader"
 
 # Reverter as alterações feitas nas migrações
 php artisan migrate:reset
