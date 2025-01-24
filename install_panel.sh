@@ -52,6 +52,9 @@ apt install -y php8.2 php8.2-cli php8.2-common php8.2-gd php8.2-mysql php8.2-mbs
 print_info "Instalando Composer..."
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Garantir que o Composer seja executado com as permissões corretas
+chown -R www-data:www-data /usr/local/bin/composer
+
 # Instalar MySQL
 print_info "Instalando MySQL..."
 apt install -y mysql-server
@@ -109,6 +112,9 @@ chmod -R 775 /var/www/pterodactyl/bootstrap/cache
 print_info "Configurando ambiente..."
 cp .env.example .env
 composer install --no-dev --optimize-autoloader
+
+# Garantir que o Composer seja executado com as permissões corretas
+chown -R www-data:www-data /var/www/pterodactyl/vendor
 
 # Gerar chave de aplicação
 php artisan key:generate --force
