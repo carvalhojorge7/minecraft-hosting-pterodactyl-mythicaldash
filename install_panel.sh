@@ -40,13 +40,13 @@ print_info "Instalando dependências..."
 apt install -y software-properties-common curl apt-transport-https ca-certificates gnupg
 
 # Adicionar repositório PHP
-print_info "Configurando PHP 8.1..."
+print_info "Configurando PHP 8.2..."
 add-apt-repository ppa:ondrej/php -y
 apt update
 
 # Instalar PHP e extensões
-apt install -y php8.1 php8.1-cli php8.1-common php8.1-gd php8.1-mysql php8.1-mbstring \
-    php8.1-bcmath php8.1-xml php8.1-fpm php8.1-curl php8.1-zip
+apt install -y php8.2 php8.2-cli php8.2-common php8.2-gd php8.2-mysql php8.2-mbstring \
+    php8.2-bcmath php8.2-xml php8.2-fpm php8.2-curl php8.2-zip
 
 # Instalar Composer
 print_info "Instalando Composer..."
@@ -147,7 +147,7 @@ server {
 
     location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
