@@ -106,11 +106,14 @@ chmod -R 775 /var/www/pterodactyl/bootstrap/cache
 print_info "Configurando ambiente..."
 cp .env.example .env
 
-# Executar Composer como usuário normal
-sudo -u $(whoami) composer install --no-dev --optimize-autoloader
+# Executar Composer como usuário www-data
+sudo -u www-data composer install --no-dev --optimize-autoloader
 
-# Garantir que o Composer seja executado com as permissões corretas
-chown -R www-data:www-data /var/www/pterodactyl/vendor
+# Reverter as alterações feitas nas migrações
+php artisan migrate:reset
+
+# Configurar banco de dados
+php artisan migrate --seed --force
 
 # Gerar chave de aplicação
 php artisan key:generate --force
@@ -120,9 +123,6 @@ sed -i "s|APP_URL=http://localhost|APP_URL=http://$(curl -s ifconfig.me)|g" .env
 sed -i "s|DB_PASSWORD=|DB_PASSWORD=$DB_PASSWORD|g" .env
 sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
 sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
-
-# Configurar banco de dados
-php artisan migrate --seed --force
 
 # Criar primeiro usuário
 print_info "Criando primeiro usuário..."
