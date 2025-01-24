@@ -19,7 +19,7 @@ Uma solução completa de hospedagem de servidores Minecraft com sistema de paga
 ## 🚀 Início Rápido
 
 ```bash
-git clone https://github.com/seu-usuario/pterodactyl-install.git
+git clone https://github.com/carvalhojorge7/pterodactyl-install.git
 cd pterodactyl-install
 chmod +x install_all.sh
 ./install_all.sh
@@ -42,7 +42,7 @@ chmod +x install_all.sh
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/pterodactyl-install.git
+git clone https://github.com/carvalhojorge7/pterodactyl-install.git
 cd pterodactyl-install
 ```
 
@@ -68,7 +68,7 @@ chmod +x install_all.sh
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/pterodactyl-install.git
+git clone https://github.com/carvalhojorge7/pterodactyl-install.git
 cd pterodactyl-install
 ```
 
