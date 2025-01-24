@@ -19,8 +19,8 @@ Uma solução completa de hospedagem de servidores Minecraft com sistema de paga
 ## 🚀 Início Rápido
 
 ```bash
-git clone https://github.com/carvalhojorge7/pterodactyl-install.git
-cd pterodactyl-install
+git clone git@github.com:carvalhojorge7/minecraft-hosting-pterodactyl-mythicaldash.git
+cd minecraft-hosting-pterodactyl-mythicaldash
 chmod +x install_all.sh
 ./install_all.sh
 ```
@@ -42,8 +42,8 @@ chmod +x install_all.sh
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/carvalhojorge7/pterodactyl-install.git
-cd pterodactyl-install
+git clone git@github.com:carvalhojorge7/minecraft-hosting-pterodactyl-mythicaldash.git
+cd minecraft-hosting-pterodactyl-mythicaldash
 ```
 
 2. Dê permissão de execução aos scripts:
@@ -68,7 +68,7 @@ chmod +x install_all.sh
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/carvalhojorge7/pterodactyl-install.git
+git clone git@github.com:carvalhojorge7/minecraft-hosting-pterodactyl-mythicaldash.git
 cd pterodactyl-install
 ```
 
