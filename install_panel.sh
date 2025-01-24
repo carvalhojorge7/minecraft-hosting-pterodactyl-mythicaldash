@@ -106,9 +106,8 @@ chmod -R 775 /var/www/pterodactyl/bootstrap/cache
 print_info "Configurando ambiente..."
 cp .env.example .env
 
-# Instruções para o usuário
-echo "Por favor, execute o Composer manualmente:"
-echo "composer install --no-dev --optimize-autoloader"
+# Executar Composer como usuário normal
+sudo -u $(whoami) composer install --no-dev --optimize-autoloader
 
 # Garantir que o Composer seja executado com as permissões corretas
 chown -R www-data:www-data /var/www/pterodactyl/vendor
