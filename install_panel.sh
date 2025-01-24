@@ -96,6 +96,12 @@ curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/downl
 tar -xzvf panel.tar.gz
 chmod -R 755 storage/* bootstrap/cache/
 
+# Corrigir permissões para os diretórios de armazenamento
+chown -R www-data:www-data /var/www/pterodactyl/storage
+chown -R www-data:www-data /var/www/pterodactyl/bootstrap/cache
+chmod -R 775 /var/www/pterodactyl/storage
+chmod -R 775 /var/www/pterodactyl/bootstrap/cache
+
 # Configurar ambiente
 print_info "Configurando ambiente..."
 cp .env.example .env
