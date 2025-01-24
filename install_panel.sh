@@ -110,6 +110,20 @@ fi
 print_info "Configurando ambiente..."
 cp .env.example .env
 
+# Atualizar as credenciais no arquivo .env
+sed -i "s|DB_PASSWORD=|DB_PASSWORD=$DB_PASSWORD|g" .env
+sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
+sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
+
+# Validar credenciais do banco de dados
+print_info "Validando conexão com o banco de dados..."
+DB_CHECK=$(mysql -u$DB_USER -p$DB_PASSWORD -e "SHOW DATABASES;" 2>&1)
+if [[ $DB_CHECK == *"Access denied"* ]]; then
+    print_error "Falha na conexão ao banco de dados com o usuário $DB_USER. Redefinindo senha do MySQL..."
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "ALTER USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
+    mysql -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
+fi
+
 # Executar Composer como usuário não-root
 print_info "Instalando dependências do Composer..."
 su -s /bin/bash www-data -c "composer install --no-dev --optimize-autoloader"
@@ -123,11 +137,8 @@ php artisan migrate --seed --force
 # Gerar chave de aplicação
 php artisan key:generate --force
 
-# Configurar .env
+# Atualizar APP_URL no arquivo .env
 sed -i "s|APP_URL=http://localhost|APP_URL=http://$(curl -s ifconfig.me)|g" .env
-sed -i "s|DB_PASSWORD=|DB_PASSWORD=$DB_PASSWORD|g" .env
-sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
-sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
 
 # Criar primeiro usuário
 print_info "Criando primeiro usuário..."
