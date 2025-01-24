@@ -124,6 +124,10 @@ sed -i "s|DB_PASSWORD=|DB_PASSWORD=$DB_PASSWORD|g" .env
 sed -i "s|DB_USERNAME=pterodactyl|DB_USERNAME=$DB_USER|g" .env
 sed -i "s|DB_DATABASE=panel|DB_DATABASE=$DB_NAME|g" .env
 
+# Gerar chave de aplicação
+print_info "Gerando chave de aplicação..."
+php artisan key:generate --force
+
 # Executar Composer como usuário não-root
 print_info "Instalando dependências do Composer..."
 su -s /bin/bash www-data -c "composer install --no-dev --optimize-autoloader"
@@ -133,9 +137,6 @@ php artisan migrate:reset
 
 # Configurar banco de dados
 php artisan migrate --seed --force
-
-# Gerar chave de aplicação
-php artisan key:generate --force
 
 # Atualizar APP_URL no arquivo .env
 sed -i "s|APP_URL=http://localhost|APP_URL=http://$(curl -s ifconfig.me)|g" .env
